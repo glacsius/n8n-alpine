@@ -1,0 +1,37 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:    
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Extract N8N Version
+      run: |
+        N8N_VERSION=$(grep -oP 'ENV N8N_VERSION="\K[^"]+' alpinen8n.dockerfile)
+        echo "N8N_VERSION=$N8N_VERSION" >> $GITHUB_ENV
+    
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+    - name: Build and Push Docker Image
+      run: |
+        docker build --platform linux/amd64,linux/arm64 -t glacsius/apinen8n:latest -t glacsius/apinen8n:$N8N_VERSION --push --file alpinen8n.dockerfile .      
+
+
+    - name: Docker Hub Description
+      uses: peter-evans/dockerhub-description@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: glacsius/n8n-alpine    
+        readme-file: README.md
