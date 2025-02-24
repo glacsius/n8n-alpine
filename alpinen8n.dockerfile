@@ -1,6 +1,6 @@
 FROM alpine:latest
 RUN apk update
-RUN aok add htop
+RUN apk add htop
 RUN apk add openssh
 RUN apk add --no-cache nodejs npm
 
