@@ -4,6 +4,12 @@ RUN apk add htop
 RUN apk add openssh
 RUN apk add --no-cache nodejs npm
 
+# Timezone
+RUN apk add tzdata
+ENV TZ=America/Sao_Paulo
+RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+RUN echo "America/Sao_Paulo" > /etc/timezone
+
 # copia o arquivo de backup
 COPY export_backup.sh /home/export_backup.sh
 RUN chmod +x /home/export_backup.sh
