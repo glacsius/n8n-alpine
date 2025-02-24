@@ -5,14 +5,18 @@ RUN apk add openssh
 RUN apk add --no-cache nodejs npm
 
 # Timezone
-RUN apk add tzdata
+RUN apk add --no-cache tzdata && \
+    ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
+    echo "America/Sao_Paulo" > /etc/timezone
 ENV TZ=America/Sao_Paulo
-RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
-RUN echo "America/Sao_Paulo" > /etc/timezone
 
-# copia o arquivo de backup
+# Copia o arquivo de backup
 COPY export_backup.sh /home/export_backup.sh
 RUN chmod +x /home/export_backup.sh
+
+# Edita o arquivo /etc/ssh/sshd_config
+RUN sed -i 's/^HostKeyAlgorithms.*/HostKeyAlgorithms ssh-rsa/' /etc/ssh/sshd_config && \
+    sed -i 's/^PubkeyAcceptedKeyTypes.*/PubkeyAcceptedKeyTypes +ssh-rsa/' /etc/ssh/sshd_config
 
 ENV N8N_VERSION="1.79.3"
 ENV N8N_PORT=80
